@@ -1,0 +1,44 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #e5e5e5;
+}
+
+#chat {
+  width: 50%;
+}
+
+#chat input {
+  width: 99%;
+}
+
+#chat ul {
+  height: 500px;
+  background-color: white;
+  overflow-y: scroll;
+  padding: 12px;
+}
+
+ul {
+  padding: 0px;
+}
+
+li {
+  list-style: none;
+  padding-bottom: 4px;
+}
+
+#landing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#send-form {
+  display: flex;
+  gap: 10px;
+}
