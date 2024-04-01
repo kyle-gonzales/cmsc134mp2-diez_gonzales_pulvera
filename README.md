@@ -7,6 +7,8 @@ _Pulvera, Eusib Vincent_
 
 ---
 
+We were tasked to implement a program than encrypts and decrypts a message using RSA-OAEP with authenticity. In this discussion, we cover our approach to implementing our solution, a walk-through to using our code, and our insights and discoveries throughout this process.
+
 Our initial strategy for this Machine Problem can be broken down into three parts:
 
 1. Create functions to implement RSA-OAEP
@@ -17,7 +19,11 @@ Our initial strategy for this Machine Problem can be broken down into three part
 
 We decided to use Python's [`cryptography`](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa) library. It contains low-level cryptographic primitives which allow us to implement security schemes using the concepts that we learned in class.
 
-The RSA-OAEP requires several functions, which are described below:
+One intriguing aspect we observed was the meticulous attention to detail evident in the library's documentation, particularly in the cryptographic primitives section, which is aptly named `cryptography.hazmat`. Throughout this section, numerous warnings underscore the potential pitfalls and security risks inherent in misusing these cryptographic schemes. Such warnings serve as a reminder of the critical importance of proper implementation to avoid compromising the security of the application. Fortunately, the library provides layers of abstraction that simplify the implementation process while maintaining robust security measures.
+
+![alt text](assets/image.png)
+
+Using the library, we implemented the RSA-OAEP scheme into several functions, which are described below:
 
 #### `generate_keys()`
 
@@ -46,7 +52,7 @@ It also uses the same mask generation function (`MGF1`) and hash algorithm (`SHA
 
 This function signs a message using RSA-PSS signature scheme.
 
-It uses the Probabalistic Signature Scheme (`PSS`), which is the recommendeed padding scheme for RSA signatures. It uses the MGF1 (which uses the `SHA-256` algorithm) and the max salt length.
+It uses the Probabalistic Signature Scheme (`PSS`), which is the recommendeed padding scheme for RSA signatures. It uses the `MGF1` (which uses the `SHA-256` algorithm) and the max salt length.
 
 #### `verify(signature, message, verification_key)`
 
@@ -92,7 +98,7 @@ Now, we wanted to simulate different scenarios:
 
 #### Scenario 1. Alice Successfully Sends a Message to Bob
 
-In this scenario, Alice uses Bob's public key to encrypt the message. This ensures the confidentiality of the message. Then, Alice signs the ciphertext with her signing key to guarantee the integrity and authenticity of the message. Bob receives the ciphertext and signature. He uses Alice's verification key to ensure that the ciphertext indeed belongs to her. After verifying Alice's integrity and authenticity, Bob uses his private key to decrypt the message.
+In this scenario, Alice uses Bob's public key to encrypt the message, ensuring the confidentiality of the message. Then, Alice signs the ciphertext with her signing key to guarantee the integrity and authenticity of the message. Bob receives the ciphertext and signature. He uses Alice's verification key to ensure that the ciphertext indeed belongs to her. After verifying Alice's integrity and authenticity, Bob uses his private key to decrypt the message.
 
 The scenario is described as code below:
 
@@ -106,7 +112,7 @@ simulate_message_transmission(
 )
 ```
 
-Simulation output:
+Simulation Output:
 
 ```
 Kyle@JPC512 MINGW64 ~/OneDrive/2023-2024/CMSC 134/mp2 (main)
@@ -127,6 +133,21 @@ WZZvAjkpjhbKZIieyfphKg4c0+WTw6DQRBVVvuSdzEUaomymzFAPi/t5BRvuFZ4ixJCAyvEVlogLD/qN
 
 Signature (base-64):
 SVl4+YL5Ia/Pu9bD3fVgiICQBr9qcKzp0o6Jc8ZuUeYou/7BVEWido3O4ZzYnI1uVweX4283qD7KpmN6TTsQMcjJLNyG6cxm0YS351bc6SVqEZVr88LdJ9vN9LGj72y0oEf/L+YD5nQPV/WnGXbBj5RsUFEWU/Z3emthv8AWPBKHM8CORGp+zox8q2x/wOjnM1BHTBEeKzjRAYqHju9PPNSfcZQiZcFgwHYan9YmnUnC3U1psvyWC90fa4KG1Et2/0wQS9rp7XdWdvOs9uMIzfiveLOaQkKSntU46hLbQjdhpKOcyXgwRy1/k3DsFNTMyoQrDHtjoTwNTbbpR1zI0g==
+
+The message Is: b"Hello Bob! I can't wait for later tonight! xoxo  -Alice"
+```
+
+Because we are using the OAEP scheme, encrypting the same plaintext would yield a different ciphertext as shown below. This elegant layer of entropy makes it significantly more difficult for attackers, further securing our message.
+
+```
+Input Message: Hello Bob! I can't wait for later tonight! xoxo  -Alice
+
+Transmitting Ciphertext and Signature over channel...
+Ciphertext (base-64):
+dTrQV1TfhP38msqRGQpuxy7HkdCvoNKd01RhDhJ4AV5UtOqP6vIKnJ3U97yrce/bCAAorjUkC3O0h1jX0Fd96XBdDukvgomwZI/xqep7cGo7Xa/KKh5xvfQXx6ZyU80dVA2V7J146HbK1lHKd0lhQ3tHqmQTRUduF/CRZV8kCeOI09R8Yolo2+iHzm3+xqlp1UDOKSTh28rDrwE7NWAwFGKIaEAnyTTqVD5vkCaL92Xq14sq68Z1VkLyzu5mzcgo4UcZdry0z5mXDM3BIkXflJ6q53uhE190boKpz9/a3ficLhJXxfqmkwV3js5e/+Q3/rQv3o4kH8A9Imc4Fx9lbQ==
+
+Signature (base-64):
+f6bQDm4XNnbq64kgGUNbBHcn8KBWfvRQReWsy4MRjuAXSTl/Y2LPFHOmq6PPu9LCvh91mvDZ7DeHwltUWwSfJqkO79fLtd6aUoloiz4d3nv53ApM8Sv+DH4GsSOSuvw4IUXgqMVioXqA+QAfiTxjTz6RnYmPM7kvxw+qlixyf1WHKE0UkIRpOvy+vCXd1I7AEGdjoBCPkZjYZNLAusIBzBJ8Am3mGjidVXx5omkVnfV6PEe1CbDDKURXhYOCgDYhBXbk/Abto3d1bAnnLyUcsWksMh+joicuDAf/goh9ZaPJKGsPApK+Edef+0Tlkd+OKPgrJrYOKMGTC9Qid9fuJQ==
 
 The message Is: b"Hello Bob! I can't wait for later tonight! xoxo  -Alice"
 ```
@@ -215,8 +236,20 @@ In the `cryptography` library's implementation of the [`decrypt()`](https://cryp
 
 ### Creating a chat app with end-to-end encryption
 
-We didn't.
+We didn't. It was a lot harder than we expected (who knew?!).
 
-It turns out that using low-level cryptographic primitives for 
+We initially wanted to build a simple client-server application with Python's Flask library. There would be exactly two clients that can communicate. We already implemented the cryptographic functionality in Python, as mentioned.
+
+In our initial idea, the client sends a message over to the server, the server encrypts the message and broadcasts it to the other client. However, we realized that this would defeat the purpose of encryption, as we are sending the plaintext over the network. Additionally, the other client would also be receiving the message in plaintext because Flask renders the HTML pages on the server before sending it to the client (server-side rendering).
+
+To resolve this, we realized we needed to use a client-side cryptography library that can encrypt and sign the message before it is transmitted. We attempted to use JavaScript's [`OpenCrypto`](https://github.com/safebash/opencrypto) library. However, we ran into another issue. We discovered that the Web Crypto API, which requires the `window.crypto.subtle` object is only available in secure contexts, which typically means when the webpage is served over HTTPS. This restriction is in place to ensure that cryptographic operations are performed securely, protecting sensitive data from potential attackers.
 
 ### Conclusion
+
+In conclusion, our investigation in this Machine Problem highlighted several important lessons in cybersecurity. Through the process of implementing RSA-OAEP encryption and RSA-PSS digital signatures, we gained a deeper understanding of fundamental cryptographic concepts such as key generation, encryption, decryption, signing, and verification.
+
+Firstly, we learned the value of leveraging established cryptographic libraries like Python's `cryptography`. These libraries are developed and maintained by experts. They have layers of abstractions and robust implementations to prevent accidental misuse and they have additional security measures that protect sensitive information (like in JavaScript's `OpenCrypto`).
+
+Additionally, our exploration of randomness as a crucial tool in cybersecurity highlighted its role in generating unpredictable and unique values essential for cryptographic operations. Using padding schemes like OAEP for RSA encryption adds a layer of unpredictability and security.
+
+Moreover, this project underscored the pivotal role of security in today's digital landscape. With threats to data privacy and integrity ever-present, adopting sound cryptographic practices is essential for safeguarding against unauthorized access and malicious manipulation. Overall, our Machine Problem experience underscored the significance of cryptographic best practices and reinforced the need for continual vigilance in the realm of cybersecurity.
