@@ -32,8 +32,8 @@ This function generates an RSA keypair (private key, public key). This function 
 Following the modular expnentiation:
 
 ```math
-(m^e) \equiv \ \mod(n)
-\text{where} n = pq
+(m^e) \equiv \ \mod(n) \\
+\text{where}\ n = pq
 ```
 
 We selected a `public_exponent` ($e$) of 65537 (`0x10001`) as it is more secure against attacks compared to smaller exponents.
