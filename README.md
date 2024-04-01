@@ -30,8 +30,11 @@ Using the library, we implemented the RSA-OAEP scheme into several functions, wh
 This function generates an RSA keypair (private key, public key). This function can also be used to generate a keypair for signing and verification.
 
 Following the modular expnentiation:
-$$ (m^e) \equiv \ \mod(n) $$
-where $n = pq$
+
+```math
+(m^e) \equiv \ \mod(n)
+\text{where} n = pq
+```
 
 We selected a `public_exponent` ($e$) of 65537 (`0x10001`) as it is more secure against attacks compared to smaller exponents.
 We also used the recommended `key_size` of 2048. This means that the modulus $n$ is 2048 bits long.
