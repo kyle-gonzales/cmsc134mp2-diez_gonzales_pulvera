@@ -237,6 +237,12 @@ The message Is: HA! Your Private Key is Invalid! You cannot read this message.
 
 In the `cryptography` library's implementation of the [`decrypt()`](https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/#decryption) function, if the `private_key` is incorrect, the function throws a `ValueError` stating that the `Decryption failed`. We found this interesting because we thought that the function would just output a random array of bytes. However, we learned that this was a design choice in order to protect the user from possible attacks.
 
+#### Try It Yourself!
+
+1. Clone the Repository
+2. Open the `src` directory with `cd src`
+3. Run `main.py` with `python main.py`
+
 ### Creating a chat app with end-to-end encryption
 
 We didn't. It was a lot harder than we expected (who knew?!).
