@@ -4,8 +4,8 @@ from cryptography import exceptions
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa, utils
 
-SIGNING_KEY_PATH = "./verification_key.pem"
-PRIVATE_KEY_PATH = "./private_key.pem"
+SIGNING_KEY_PATH = "../keys/verification_key.pem"
+PRIVATE_KEY_PATH = "../keys/private_key.pem"
 
 
 def generate_keys() -> tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]:
