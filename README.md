@@ -13,7 +13,7 @@ Our initial strategy for this Machine Problem can be broken down into three part
 
 1. Create functions to implement RSA-OAEP
 2. Simulate the _encrypt-sign_ and _verify-decrypt_ schemes in the console
-3. Create an end-to-end encryption chat app to simulate a more realistic transmission of an encrypted message over an insecure channel
+3. Create an end-to-end encryption chat app to simulate a more realistic transmission of an encrypted message over an unsecured channel
 
 ### Implementing RSA-OAEP Functionality
 
@@ -43,7 +43,7 @@ We also used the recommended `key_size` of 2048. This means that the modulus $n$
 
 This function encrypts a message using RSA-OAEP encryption scheme.
 
-In the Optimal Asymmetric Encryption Padding (OAEP) scheme, we use the `MGF1` scheme to generate a random symmetric key to scramble the message before encrypting the scrambled message and generated random key. Additionally, we use the `SHA-256` algorithm for the mask generation function.
+The padding scheme is used to add non-determinism to the otherwise deterministic encryption scheme, effectively making the encryption scheme IND-CPA secure. In the Optimal Asymmetric Encryption Padding (OAEP) scheme, we use the `MGF1` scheme to generate a random symmetric key to scramble the message before encrypting the scrambled message and generated random key. Additionally, we use the `SHA-256` algorithm for the mask generation function.
 
 #### `decrypt(ciphertext, private_key)`
 
@@ -55,7 +55,7 @@ It also uses the same mask generation function (`MGF1`) and hash algorithm (`SHA
 
 This function signs a message using RSA-PSS signature scheme.
 
-It uses the Probabalistic Signature Scheme (`PSS`), which is the recommendeed padding scheme for RSA signatures. It uses the `MGF1` (which uses the `SHA-256` algorithm) and the max salt length.
+It uses the Probabalistic Signature Scheme (`PSS`), which is the recommendeed padding scheme for RSA signatures. It uses the `MGF1` (which uses the `SHA-256` algorithm) and the maximum salt length.
 
 #### `verify(signature, message, verification_key)`
 
@@ -85,7 +85,7 @@ def simulate_message_transmission(
     #3. Receiving Message
     if verify(signature, ciphertext, verification_key): #3.1 Verify Message
         message = decrypt(ciphertext, private_key) #3.2 Decrypt Message
-        print(f"The message Is: {message}")
+        print(f"The message is: {message}")
     else:
         print("Invalid signature.")
 ```
@@ -101,7 +101,7 @@ Now, we wanted to simulate different scenarios:
 
 #### Scenario 1. Alice Successfully Sends a Message to Bob
 
-In this scenario, Alice uses Bob's public key to encrypt the message, ensuring the confidentiality of the message. Then, Alice signs the ciphertext with her signing key to guarantee the integrity and authenticity of the message. Bob receives the ciphertext and signature. He uses Alice's verification key to ensure that the ciphertext indeed belongs to her. After verifying Alice's integrity and authenticity, Bob uses his private key to decrypt the message.
+In this scenario, Alice uses Bob's public key to encrypt the message, ensuring the confidentiality of the message. Then, Alice signs the ciphertext with her signing key to guarantee the integrity and authenticity of the message. Bob receives the ciphertext and signature from Alice. He uses Alice's verification key to ensure that the ciphertext indeed belongs to her. After verifying Alice's integrity and authenticity, Bob uses his private key to decrypt the message.
 
 The scenario is described as code below:
 
@@ -157,7 +157,7 @@ The message Is: b"Hello Bob! I can't wait for later tonight! xoxo  -Alice"
 
 #### Scenario 2. Mallory Sends a Message to Bob Pretending to be Alice (Spoofing)
 
-In this scenario, Mallory uses Bob's public key to encrypt the message. But, she isn't very familiar about digital signatures so she uses her signing key to generate a signature of the message. Mallory sends the message to Bob pretending to be Alice. When Bob receives a message, supposedly from Alice, he uses Alice's verification key to verify the signature. However, Bob realizes that the signatures don't match. He realizes that the message must not be from Alice. Bob discards the message.
+In this scenario, Mallory uses Bob's public key to encrypt the message. But, she isn't very familiar with digital signatures so she uses her signing key to generate a signature of the message. Mallory sends the message to Bob pretending to be Alice. When Bob receives a message, supposedly from Alice, he uses Alice's verification key to verify the signature. However, Bob realizes that the signatures don't match. He realizes that the message must not be from Alice. Bob discards the message.
 
 The scenario is described as code below:
 
@@ -198,7 +198,7 @@ Invalid signature.
 
 #### Scenario 3. Eve Intercepts the Ciphertext from Alice
 
-In this scenario, Alice uses Bob's public key to encrypt the message. Then, Alice signs the ciphertext with her signing key. However, during transmission, Eve intercepts the ciphertext and signature from Alice. She uses Alice's verification key to verify the signature. Then, Eve tries to decrypt the message with Bob's old private key. The decryption fails and she cannot obtain the original message.
+In this scenario, Alice uses Bob's public key to encrypt the message. Then, Alice signs the ciphertext with her signing key. However, during transmission, Eve intercepts the ciphertext and signature from Alice. She uses Alice's verification key to verify the signature. Then, Eve tries to decrypt the message with Bob's _old_ private key. The decryption fails and she cannot obtain the original message.
 
 ```python
 simulate_message_transmission(
@@ -239,7 +239,7 @@ In the `cryptography` library's implementation of the [`decrypt()`](https://cryp
 
 #### Try It Yourself!
 
-1. Clone the Repository
+1. Clone the github [repository](https://github.com/kyle-gonzales/cmsc134mp2-diez_gonzales_pulvera)
 2. Open the `src` directory with `cd src`
 3. Run `main.py` with `python main.py`
 
@@ -251,7 +251,7 @@ We initially wanted to build a simple client-server application with Python's Fl
 
 In our initial idea, the client sends a message over to the server, the server encrypts the message and broadcasts it to the other client. However, we realized that this would defeat the purpose of encryption, as we are sending the plaintext over the network. Additionally, the other client would also be receiving the message in plaintext because Flask renders the HTML pages on the server before sending it to the client (server-side rendering).
 
-To resolve this, we realized we needed to use a client-side cryptography library that can encrypt and sign the message before it is transmitted. We attempted to use JavaScript's [`OpenCrypto`](https://github.com/safebash/opencrypto) library. However, we ran into another issue. We discovered that the Web Crypto API, which requires the `window.crypto.subtle` object is only available in secure contexts, which typically means when the webpage is served over HTTPS. This restriction is in place to ensure that cryptographic operations are performed securely, protecting sensitive data from potential attackers.
+To resolve this, we realized we needed to use a client-side cryptography library that can encrypt and sign the message before it is transmitted. We attempted to use JavaScript's [`OpenCrypto`](https://github.com/safebash/opencrypto) library. However, we ran into another issue. We discovered that the OpenCrypto API, which requires the `window.crypto.subtle` object is only available in secure contexts, which typically means when the webpage is served over HTTPS. This restriction is in place to ensure that cryptographic operations are performed securely, protecting sensitive data from potential attackers.
 
 ### Conclusion
 
